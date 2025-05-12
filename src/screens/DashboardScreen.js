@@ -3,19 +3,28 @@ import { View, Text, StyleSheet } from 'react-native';
 import { supabase } from '../utils/supabaseClient';
 
 export default function DashboardScreen() {
-  const [userEmail, setUserEmail] = useState('User');
+  const [email, setEmail] = useState('');
 
   useEffect(() => {
-    const fetchUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) setUserEmail(user.email);
+    const fetchSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          setEmail(session.user.email);
+          console.log('DashboardScreen rendered with email:', session.user.email);
+        } else {
+          console.log('No session found in DashboardScreen');
+        }
+      } catch (error) {
+        console.log('Error fetching session in DashboardScreen:', error.message);
+      }
     };
-    fetchUser();
+    fetchSession();
   }, []);
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Welcome, {userEmail}!</Text>
+      <Text style={styles.title}>Welcome, {email || 'User'}!</Text>
     </View>
   );
 }

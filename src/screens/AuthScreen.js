@@ -18,6 +18,7 @@ export default function AuthScreen({ navigation }) {
         { cancelable: false }
       );
     } else {
+      console.log('Login successful, navigating to Dashboard');
       navigation.navigate('Dashboard');
     }
   };
@@ -30,8 +31,18 @@ export default function AuthScreen({ navigation }) {
       await supabase.from('users').insert([{ id: data.user.id, email, role }]);
       setShowWelcome(true);
       setTimeout(() => {
+        console.log('Navigating to Dashboard after signup');
         setShowWelcome(false);
-        navigation.navigate('Dashboard');
+        try {
+          if (navigation) {
+            navigation.navigate('Dashboard');
+            console.log('Navigation to Dashboard attempted');
+          } else {
+            console.log('Navigation object not available');
+          }
+        } catch (error) {
+          console.log('Navigation error:', error.message);
+        }
       }, 3000);
     }
   };
@@ -40,7 +51,7 @@ export default function AuthScreen({ navigation }) {
     <View style={styles.container}>
       <Modal visible={showWelcome} transparent animationType="fade">
         <View style={styles.modalContainer}>
-          <Text style={styles.modalText}>Welcome, {email}!</Text>
+          <Text style={styles.modalText}>Welcome, {email || 'User'}!</Text>
         </View>
       </Modal>
       <Text style={styles.title}>IzziJobs</Text>
@@ -100,7 +111,7 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: '#fff',
     padding: 10,
-    marginBottom: 20, // Match LoginScreen
+    marginBottom: 20,
     borderRadius: 5,
   },
   roleContainer: {
@@ -132,7 +143,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: '100%',
     alignItems: 'center',
-    marginBottom: 20, // Match your preferred spacing
+    marginBottom: 20,
   },
   loginButton: {
     backgroundColor: '#48d22b',
@@ -140,7 +151,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     width: '100%',
     alignItems: 'center',
-    marginBottom: 20, // Match your preferred spacing
+    marginBottom: 20,
   },
   buttonText: {
     color: '#fff',
