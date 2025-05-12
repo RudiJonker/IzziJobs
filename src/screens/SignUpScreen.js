@@ -49,7 +49,9 @@ export default function SignUpScreen({ navigation }) {
       <View style={styles.buttonContainer}>
         <Button title="Sign Up" onPress={handleSignUp} color="#48d22b" />
       </View>
-      <Button title="Login" onPress={() => navigation.navigate('Login')} color="#48d22b" />
+      <View style={styles.buttonContainer}>
+        <Button title="Login" onPress={() => navigation.navigate('Login')} color="#48d22b" />
+      </View>
     </View>
   );
 }
@@ -58,6 +60,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#333' },
   title: { fontSize: 24, color: '#fff', textAlign: 'center', marginBottom: 20 },
   input: { backgroundColor: '#fff', padding: 10, marginBottom: 10, borderRadius: 5 },
-  roleContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 10 },
-  buttonContainer: { marginBottom: 10 }, // Added margin below Sign Up button
+  roleContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
+  buttonContainer: { marginBottom: 20 }, // Increased margin
 });
