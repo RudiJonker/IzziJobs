@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { supabase } from '../utils/supabaseClient';
 
 export default function SignUpScreen({ navigation }) {
@@ -35,31 +35,92 @@ export default function SignUpScreen({ navigation }) {
         secureTextEntry
       />
       <View style={styles.roleContainer}>
-        <Button
-          title="Job Seeker"
+        <TouchableOpacity
+          style={[styles.roleButton, role === 'job_seeker' ? styles.roleButtonActive : {}]}
           onPress={() => setRole('job_seeker')}
-          color={role === 'job_seeker' ? '#48d22b' : '#666'}
-        />
-        <Button
-          title="Employer"
+        >
+          <Text style={styles.roleButtonText}>Job Seeker</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.roleButton, role === 'employer' ? styles.roleButtonActive : {}]}
           onPress={() => setRole('employer')}
-          color={role === 'employer' ? '#48d22b' : '#666'}
-        />
+        >
+          <Text style={styles.roleButtonText}>Employer</Text>
+        </TouchableOpacity>
       </View>
       <View style={styles.buttonContainer}>
-        <Button title="Sign Up" onPress={handleSignUp} color="#48d22b" />
-      </View>
-      <View style={styles.buttonContainer}>
-        <Button title="Login" onPress={() => navigation.navigate('Login')} color="#48d22b" />
+        <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp}>
+          <Text style={styles.buttonText}>Sign Up</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.loginButton} onPress={() => navigation.navigate('Login')}>
+          <Text style={styles.buttonText}>Login</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: 'center', padding: 20, backgroundColor: '#333' },
-  title: { fontSize: 24, color: '#fff', textAlign: 'center', marginBottom: 20 },
-  input: { backgroundColor: '#fff', padding: 10, marginBottom: 10, borderRadius: 5 },
-  roleContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20 },
-  buttonContainer: { marginBottom: 20 }, // Increased margin
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: '#333',
+  },
+  title: {
+    fontSize: 24,
+    color: '#fff',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  input: {
+    backgroundColor: '#fff',
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 5,
+  },
+  roleContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 30,
+  },
+  roleButton: {
+    flex: 1,
+    padding: 10,
+    backgroundColor: '#66',
+    borderRadius: 5,
+    alignItems: 'center',
+    marginHorizontal: 5,
+  },
+  roleButtonActive: {
+    backgroundColor: '#48d22b',
+  },
+  roleButtonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  buttonContainer: {
+    alignItems: 'center',
+  },
+  signUpButton: {
+    backgroundColor: '#48d22b',
+    padding: 15,
+    borderRadius: 5,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 20, // Large spacing
+  },
+  loginButton: {
+    backgroundColor: '#48d22b',
+    padding: 15,
+    borderRadius: 5,
+    width: '100%',
+    alignItems: 'center',
+    marginBottom: 20, // Extra spacing at bottom
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
 });
