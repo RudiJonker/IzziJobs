@@ -2,11 +2,11 @@ import React from 'react';
      import { View, Text, StyleSheet } from 'react-native';
      import { useTheme } from '../utils/ThemeContext';
 
-     export default function AuthScreen() {
+     export default function SettingsScreen() {
        const { theme } = useTheme();
        return (
          <View style={[styles.container, { backgroundColor: theme.background }]}>
-           <Text style={[styles.text, { color: theme.text }]}>Placeholder: Auth Screen</Text>
+           <Text style={[styles.text, { color: theme.text }]}>Placeholder: Settings Screen</Text>
          </View>
        );
      }
