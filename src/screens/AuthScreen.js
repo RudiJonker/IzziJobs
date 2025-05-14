@@ -9,7 +9,7 @@ export default function AuthScreen({ navigation }) {
   const [isSignup, setIsSignup] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState(null); // Allow null initially
+  const [role, setRole] = useState(null);
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -17,18 +17,15 @@ export default function AuthScreen({ navigation }) {
     setLoading(true);
     try {
       if (isSignup) {
-        // Validate role
         if (!role || role === null) {
           throw new Error('Please select a role (Job Seeker or Employer).');
         }
-        // Sign up
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         const userId = data.user.id;
-        console.log('Signup User ID:', userId);
+        console.log(`Signup User ID: ${userId}, Email: ${email}`);
         console.log('Selected Role:', role);
 
-        // Set session manually
         if (data.session) {
           const { error: sessionError } = await supabase.auth.setSession(data.session);
           if (sessionError) console.log('Set session error:', sessionError.message);
@@ -36,7 +33,6 @@ export default function AuthScreen({ navigation }) {
           console.log('No session returned from signUp');
         }
 
-        // Insert into users table
         const { error: insertError } = await supabase
           .from('users')
           .insert({ id: userId, email, role });
@@ -44,22 +40,33 @@ export default function AuthScreen({ navigation }) {
 
         Alert.alert('Success', 'Account created! Please log in.');
         setIsSignup(false);
-        setRole(null); // Reset role after signup
+        setRole(null);
       } else {
-        // Log in
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
+        if (error) {
+          if (error.message === 'Invalid login credentials') {
+            const { data: userData } = await supabase
+              .from('users')
+              .select('id')
+              .eq('email', email)
+              .single();
+            if (userData) {
+              throw new Error('Incorrect password. Try again or reset your password.');
+            } else {
+              throw new Error('No account found for this email. Please sign up.');
+            }
+          }
+          throw error;
+        }
         const userId = data.user.id;
-        console.log('Login User ID:', userId);
+        console.log(`Login User ID: ${userId}, Email: ${email}`);
 
-        // Check session
         const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
         if (sessionError || !sessionData.session) {
           throw new Error('No active session after login');
         }
-        console.log('Session UID:', sessionData.session.user.id);
+        console.log(`Session UID: ${sessionData.session.user.id}, Email: ${email}`);
 
-        // Fetch user role
         const { data: userData, error: fetchError } = await supabase
           .from('users')
           .select('role')
@@ -146,17 +153,21 @@ export default function AuthScreen({ navigation }) {
         onChangeText={setPassword}
         secureTextEntry
       />
-      <Button
-        title={loading ? 'Loading...' : isSignup ? 'Sign Up' : 'Log In'}
-        onPress={handleAuth}
-        disabled={loading}
-        color={theme.button}
-      />
-      <Button
-        title={`Switch to ${isSignup ? 'Log In' : 'Sign Up'}`}
-        onPress={() => setIsSignup(!isSignup)}
-        color={theme.accent}
-      />
+      <View style={styles.buttonContainer}>
+        <Button
+          title={loading ? 'Loading...' : isSignup ? 'Sign Up' : 'Log In'}
+          onPress={handleAuth}
+          disabled={loading}
+          color={theme.button}
+        />
+      </View>
+      <View style={styles.buttonContainer}>
+        <Button
+          title={`Switch to ${isSignup ? 'Log In' : 'Sign Up'}`}
+          onPress={() => setIsSignup(!isSignup)}
+          color={theme.accent}
+        />
+      </View>
     </View>
   );
 }
@@ -200,5 +211,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#000000',
     textAlign: 'center',
+  },
+  buttonContainer: {
+    marginVertical: 8, // Add spacing between buttons
   },
 });
