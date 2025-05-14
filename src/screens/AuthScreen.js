@@ -9,8 +9,7 @@ export default function AuthScreen({ navigation }) {
   const [isSignup, setIsSignup] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
-  const [role, setRole] = useState('job_seeker');
+  const [role, setRole] = useState(null); // Allow null initially
   const [loading, setLoading] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
@@ -18,11 +17,16 @@ export default function AuthScreen({ navigation }) {
     setLoading(true);
     try {
       if (isSignup) {
+        // Validate role
+        if (!role || role === null) {
+          throw new Error('Please select a role (Job Seeker or Employer).');
+        }
         // Sign up
         const { data, error } = await supabase.auth.signUp({ email, password });
         if (error) throw error;
         const userId = data.user.id;
         console.log('Signup User ID:', userId);
+        console.log('Selected Role:', role);
 
         // Set session manually
         if (data.session) {
@@ -35,11 +39,12 @@ export default function AuthScreen({ navigation }) {
         // Insert into users table
         const { error: insertError } = await supabase
           .from('users')
-          .insert({ id: userId, email, name, role });
+          .insert({ id: userId, email, role });
         if (insertError) throw new Error(`Insert failed: ${insertError.message}`);
 
         Alert.alert('Success', 'Account created! Please log in.');
         setIsSignup(false);
+        setRole(null); // Reset role after signup
       } else {
         // Log in
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -90,13 +95,6 @@ export default function AuthScreen({ navigation }) {
       <Text style={[styles.title, { color: '#d1d5db' }]}>{isSignup ? 'Sign Up' : 'Log In'}</Text>
       {isSignup && (
         <>
-          <TextInput
-            style={[styles.input, { borderColor: theme.accent, color: '#d1d5db' }]}
-            placeholder="Name"
-            placeholderTextColor="#d1d5db80"
-            value={name}
-            onChangeText={setName}
-          />
           <TouchableOpacity
             style={[styles.pickerContainer, { borderColor: theme.accent, backgroundColor: '#ffffff' }]}
             onPress={() => setModalVisible(true)}
